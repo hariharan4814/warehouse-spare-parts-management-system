@@ -1,75 +1,94 @@
 "use client";
 
+import React from "react";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { PageContainer } from "@/components/ui/page-container";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { DashboardCard } from "@/components/ui/dashboard-card";
+import { ChartCard } from "@/components/ui/chart-card";
+import { ActivityCard } from "@/components/ui/activity-card";
+import { AlertCard } from "@/components/ui/alert-card";
+import { QuickActionCard } from "@/components/ui/quick-action-card";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProtectedRoute } from "@/components/providers/protected-route";
-import { Button } from "@/components/ui/button";
-import { LogOut, User, Shield, Briefcase, Hash } from "lucide-react";
+
+import {
+  MOCK_METRICS,
+  MOCK_INVENTORY_OVERVIEW,
+  MOCK_STOCK_IN_OUT,
+  MOCK_MONTHLY_ACTIVITY,
+  MOCK_LOW_STOCK_TREND,
+  MOCK_ACTIVITIES,
+  MOCK_LOW_STOCK_ITEMS,
+} from "@/constants/mock-data";
 
 export default function Home() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <ProtectedRoute>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-radial from-neutral-50 to-neutral-200 px-6 py-12 dark:from-neutral-900 dark:to-black">
-        {/* Decorative Grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] pointer-events-none"></div>
+      <DashboardLayout>
+        <PageContainer
+          title="Enterprise Dashboard"
+          subtitle={`Welcome back, ${user?.first_name || user?.username || "Employee"}! Here is the latest overview of spare parts inventory.`}
+        >
+          {/* Breadcrumbs */}
+          <Breadcrumb items={[{ label: "Dashboard", href: "/", active: true }]} />
 
-        <div className="relative z-10 flex w-full max-w-2xl flex-col items-center text-center space-y-8">
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-600 dark:from-white dark:to-neutral-400">
-            Warehouse Spare Parts Management System
-          </h1>
+          {/* Stats Metrics Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {MOCK_METRICS.map((metric) => (
+              <DashboardCard
+                key={metric.title}
+                title={metric.title}
+                value={metric.value}
+                change={metric.change}
+                type={metric.type}
+                iconName={metric.iconName}
+              />
+            ))}
+          </div>
 
-          {user && (
-            <div className="w-full rounded-2xl border border-neutral-200 bg-card p-6 shadow-xl backdrop-blur-xs dark:border-neutral-800 space-y-6">
-              <div className="flex flex-col items-center sm:flex-row sm:items-start gap-6">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <User className="h-8 w-8" />
-                </div>
-                <div className="flex-1 text-left space-y-2">
-                  <h2 className="text-xl font-bold text-card-foreground">
-                    Welcome back, {user.first_name || user.username}!
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    Logged in as <span className="font-semibold text-foreground">{user.email}</span>
-                  </p>
+          {/* Quick Actions Panel */}
+          <QuickActionCard />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Hash className="h-4 w-4 text-primary" />
-                      <span>Employee ID: <strong className="text-foreground">{user.employee_id}</strong></span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Shield className="h-4 w-4 text-primary" />
-                      <span>Role: <strong className="text-foreground">{user.role}</strong></span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Briefcase className="h-4 w-4 text-primary" />
-                      <span>Designation: <strong className="text-foreground">{user.designation || "N/A"}</strong></span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Briefcase className="h-4 w-4 text-primary" />
-                      <span>Department: <strong className="text-foreground">{user.department || "N/A"}</strong></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartCard
+              title="Inventory Category Share"
+              description="Proportion of parts by catalog categories"
+              type="inventory-overview"
+              data={MOCK_INVENTORY_OVERVIEW}
+            />
+            <ChartCard
+              title="Stock In vs. Stock Out"
+              description="Monthly movements tracking (last 7 months)"
+              type="stock-in-out"
+              data={MOCK_STOCK_IN_OUT}
+            />
+            <ChartCard
+              title="Warehouse Request Handling"
+              description="Requests vs. actual issues & returns by facility"
+              type="warehouse-activity"
+              data={MOCK_MONTHLY_ACTIVITY}
+            />
+            <ChartCard
+              title="Low Stock Alert Trend"
+              description="Count of parts near threshold values"
+              type="low-stock-trend"
+              data={MOCK_LOW_STOCK_TREND}
+            />
+          </div>
 
-              <div className="flex justify-end border-t border-neutral-200/80 dark:border-neutral-800/80 pt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={logout}
-                  className="flex items-center gap-2 border-neutral-300 text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
+          {/* Activity Logs and Alerts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AlertCard items={MOCK_LOW_STOCK_ITEMS} />
+            <ActivityCard activities={MOCK_ACTIVITIES} />
+          </div>
+        </PageContainer>
+      </DashboardLayout>
     </ProtectedRoute>
   );
 }
+
 
