@@ -1,2 +1,3 @@
-# Serializers will be implemented in future sprints.
+from .user_serializer import UserSerializer, CustomTokenObtainPairSerializer
 
+__all__ = ["UserSerializer", "CustomTokenObtainPairSerializer"]

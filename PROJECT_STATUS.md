@@ -9,7 +9,9 @@ Foundation setup, project structure, and core configuration initialized for both
 ---
 
 ## Sprint 2
-**Status:** Pending
+**Status:** Completed
+
+Implemented production-ready JWT-based authentication system. Created Django app 'users', custom User model with employee fields and roles (ADMIN, WAREHOUSE_MANAGER, STORE_KEEPER, TECHNICIAN), custom Django Admin interface, and authentication endpoints (login, refresh, logout, profile). Created frontend login page with form-validation, auth context state management, Axios JWT interceptors, token refresh, and protected page wrapper.
 
 ---
 
