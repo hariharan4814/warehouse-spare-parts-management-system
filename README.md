@@ -2,7 +2,7 @@
 
 An enterprise-grade platform for managing spare parts inventory, procurement, warehouse operations, and issue/return workflows across multiple facilities.
 
-This repository contains the **project foundation** — a production-ready monorepo structure with frontend and backend scaffolding. Business features are implemented incrementally across planned sprints.
+**Status:** Project initialized — frontend and backend scaffolding configured. Business features will be implemented incrementally across planned sprints.
 
 ---
 
@@ -15,20 +15,26 @@ This repository contains the **project foundation** — a production-ready monor
 | Next.js 15        | React framework (App Router)     |
 | TypeScript        | Type-safe development            |
 | Tailwind CSS      | Utility-first styling            |
-| shadcn/ui         | Component library (prepared)     |
+| shadcn/ui         | Component library                |
 | TanStack Query    | Server state management          |
 | Axios             | HTTP client                      |
 | React Hook Form   | Form handling                    |
 | Zod               | Schema validation                |
+| Lucide React      | Icon library                     |
+| Recharts          | Data visualization               |
 
 ### Backend
 
-| Technology              | Purpose                    |
-|-------------------------|----------------------------|
-| Python                  | Runtime                    |
-| Django                  | Web framework              |
-| Django REST Framework   | API layer (prepared)       |
-| PostgreSQL              | Primary database           |
+| Technology                        | Purpose                    |
+|-----------------------------------|----------------------------|
+| Python                            | Runtime                    |
+| Django                            | Web framework              |
+| Django REST Framework             | API layer                  |
+| djangorestframework-simplejwt     | JWT authentication (configured) |
+| django-filter                     | Query filtering            |
+| django-cors-headers               | CORS handling              |
+| psycopg                           | PostgreSQL driver          |
+| PostgreSQL                        | Primary database (configured) |
 
 ---
 
@@ -41,7 +47,7 @@ warehouse-spare-parts-management-system/
 │   ├── components/           # UI and layout components
 │   ├── services/             # API service layer
 │   ├── hooks/                # Custom React hooks
-│   ├── lib/                  # Shared utilities
+│   ├── lib/                  # Shared utilities (Axios client, cn helper)
 │   ├── store/                # Client state
 │   ├── types/                # TypeScript definitions
 │   ├── utils/                # Helper functions
@@ -77,12 +83,12 @@ warehouse-spare-parts-management-system/
 
 - **Node.js** 20+
 - **Python** 3.11+
-- **PostgreSQL** 16+
+- **PostgreSQL** 16+ (optional during initialization; required for production)
 - **Docker** (optional, for containerized database)
 
 ---
 
-## Getting Started
+## Initialization
 
 ### 1. Clone the repository
 
@@ -91,13 +97,7 @@ git clone <repository-url>
 cd warehouse-spare-parts-management-system
 ```
 
-### 2. Start PostgreSQL (Docker)
-
-```bash
-docker compose -f docker/docker-compose.yml up -d
-```
-
-### 3. Backend setup
+### 2. Backend setup
 
 ```bash
 cd backend
@@ -127,7 +127,9 @@ python manage.py runserver
 
 The backend runs at `http://localhost:8000`.
 
-### 4. Frontend setup
+> **Note:** By default, development uses SQLite so the server starts without PostgreSQL. Set `USE_POSTGRES=True` in `.env` once PostgreSQL is available.
+
+### 3. Frontend setup
 
 ```bash
 cd frontend
@@ -145,7 +147,15 @@ npm run dev
 
 The frontend runs at `http://localhost:3000`.
 
-### 5. shadcn/ui components (when needed)
+### 4. PostgreSQL (optional, via Docker)
+
+```bash
+docker compose -f docker/docker-compose.yml up -d
+```
+
+Then set `USE_POSTGRES=True` in `backend/.env`.
+
+### 5. shadcn/ui components
 
 ```bash
 cd frontend
@@ -154,27 +164,77 @@ npx shadcn@latest add button
 
 ---
 
+## API
+
+### Health Check
+
+```
+GET /api/health/
+```
+
+**Response:**
+
+```json
+{
+  "status": "healthy",
+  "project": "Warehouse Spare Parts Management System"
+}
+```
+
+**Example:**
+
+```bash
+curl http://localhost:8000/api/health/
+```
+
+---
+
 ## Environment Variables
 
 ### Backend (`backend/.env`)
 
-| Variable              | Description              | Default                  |
-|-----------------------|--------------------------|--------------------------|
-| `SECRET_KEY`          | Django secret key        | —                        |
-| `DEBUG`               | Debug mode               | `True`                   |
-| `ALLOWED_HOSTS`       | Allowed hostnames        | `localhost,127.0.0.1`    |
-| `DB_NAME`             | PostgreSQL database name | `warehouse_spare_parts`  |
-| `DB_USER`             | PostgreSQL user          | `postgres`               |
-| `DB_PASSWORD`         | PostgreSQL password      | `postgres`               |
-| `DB_HOST`             | PostgreSQL host          | `localhost`              |
-| `DB_PORT`             | PostgreSQL port          | `5432`                   |
-| `CORS_ALLOWED_ORIGINS`| Frontend origins         | `http://localhost:3000`  |
+| Variable                         | Description                         | Default                  |
+|----------------------------------|-------------------------------------|--------------------------|
+| `SECRET_KEY`                     | Django secret key                   | —                        |
+| `DEBUG`                          | Debug mode                          | `True`                   |
+| `ALLOWED_HOSTS`                  | Allowed hostnames                   | `localhost,127.0.0.1`    |
+| `USE_POSTGRES`                   | Use PostgreSQL instead of SQLite    | `False`                  |
+| `DB_NAME`                        | PostgreSQL database name            | `warehouse_spare_parts`  |
+| `DB_USER`                        | PostgreSQL user                     | `postgres`               |
+| `DB_PASSWORD`                    | PostgreSQL password                 | `postgres`               |
+| `DB_HOST`                        | PostgreSQL host                     | `localhost`              |
+| `DB_PORT`                        | PostgreSQL port                     | `5432`                   |
+| `CORS_ALLOWED_ORIGINS`           | Frontend origins                    | `http://localhost:3000`  |
+| `CORS_ALLOW_CREDENTIALS`         | Allow credentials in CORS           | `True`                   |
+| `JWT_ACCESS_TOKEN_LIFETIME_MINUTES` | JWT access token lifetime (min)  | `60`                     |
+| `JWT_REFRESH_TOKEN_LIFETIME_DAYS`   | JWT refresh token lifetime (days)| `7`                      |
+| `API_PAGE_SIZE`                  | Default API pagination size         | `20`                     |
 
 ### Frontend (`frontend/.env.local`)
 
 | Variable                   | Description     | Default                     |
 |----------------------------|-----------------|-----------------------------|
 | `NEXT_PUBLIC_API_BASE_URL` | Backend API URL | `http://localhost:8000/api` |
+
+---
+
+## Backend Configuration
+
+Settings are split across three modules:
+
+| File              | Purpose                              |
+|-------------------|--------------------------------------|
+| `base.py`         | Shared settings (DRF, JWT, CORS, DB) |
+| `development.py`  | Local development overrides          |
+| `production.py`   | Production security hardening        |
+
+Configured in `base.py`:
+
+- **CORS** — allowed origins from environment
+- **REST_FRAMEWORK** — JWT auth, filtering, pagination, parsers/renderers
+- **SIMPLE_JWT** — token lifetimes from environment
+- **PostgreSQL** — connection via environment variables
+- **Media / Static** — `/media/` and `/static/` paths
 
 ---
 
