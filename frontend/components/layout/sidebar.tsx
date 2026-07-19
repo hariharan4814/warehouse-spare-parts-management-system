@@ -50,6 +50,8 @@ export function Sidebar({
     { label: "Spare Parts", href: "/spare-parts", icon: Package },
     { label: "Inventory", href: "/inventory", icon: ClipboardList },
     { label: "Warehouses", href: "/warehouses", icon: Warehouse },
+    { label: "Warehouse Inventory", href: "/warehouse-inventory", icon: ClipboardList },
+    { label: "Stock Transfers", href: "/stock-transfers", icon: ArrowLeftRight },
     { label: "Suppliers", href: "/suppliers", icon: Truck },
     { label: "Purchase Orders", href: "/purchase-orders", icon: FileSpreadsheet },
     { label: "Goods Receipts", href: "/goods-receipts", icon: PackageCheck },
@@ -95,7 +97,7 @@ export function Sidebar({
       {/* Nav List */}
       <nav className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin scrollbar-thumb-rounded">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
           const Icon = item.icon;
 
           return (
