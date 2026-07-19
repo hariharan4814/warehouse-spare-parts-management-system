@@ -21,6 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
             "profile_picture",
             "role",
             "is_active_employee",
+            "last_login",
             "created_at",
             "updated_at",
         ]

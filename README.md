@@ -1,256 +1,176 @@
-# Warehouse Spare Parts Management System
+# Warehouse Spare Parts Management System (WSPMS ERP)
 
-An enterprise-grade platform for managing spare parts inventory, procurement, warehouse operations, and issue/return workflows across multiple facilities.
+An enterprise-grade platform for managing spare parts inventory, procurement, warehouse operations, stock transfers, and issue/return workflows across multiple facilities.
 
-**Status:** Project initialized — frontend and backend scaffolding configured. Business features will be implemented incrementally across planned sprints.
+## Table of Contents
+1. [Feature List](#feature-list)
+2. [Technology Stack](#technology-stack)
+3. [Folder Structure](#folder-structure)
+4. [Environment Variables](#environment-variables)
+5. [Installation Guide](#installation-guide)
+6. [Deployment Guide (Docker)](#deployment-guide-docker)
+7. [API Documentation Reference](#api-documentation-reference)
+
+---
+
+## Feature List
+
+- **User Profiles & Role-Based Permissions**: Dynamic role checks for Admin, Warehouse Manager, Storekeeper, and Technician. Custom profile editing, password changes, and last login tracking.
+- **Spare Parts Catalog**: Part coding, category management, storage location allocation, minimum/maximum stock thresholds, and unit costs.
+- **Multi-Warehouse & Stock Transfers**: Inter-warehouse transfer management with validation checks, stock allocation tracking, and digital dispatch notes.
+- **Inventory Ledger**: Real-time transactions (stock increases, decreases, adjustments, transfers, issues) generating automated `StockMovement` history log.
+- **Supplier & Procurement**: Supplier directory, Purchase Order (PO) workflows, partial/full Goods Receipt Notes (GRN) automatic stock ingestion.
+- **Work Orders & Parts Issuance**: Maintenance work orders (assignable to technicians), partial/full parts issuance, technician alerts.
+- **Notifications System**: In-app notifications for safety thresholds (low stock, out of stock), PO updates, completed transfers, and assigned WOs.
+- **Audit Log Trail**: Chronological immutable administrative log capturing all logins, logouts, creates, updates, and deletes with old vs new value payloads.
+- **Business Intelligence & Reports**: Visual charts tracking monthly POs, WOs, supplier spend allocation, warehouse valuation breakdowns, and top consumed spare parts.
 
 ---
 
 ## Technology Stack
 
-### Frontend
-
-| Technology        | Purpose                          |
-|-------------------|----------------------------------|
-| Next.js 15        | React framework (App Router)     |
-| TypeScript        | Type-safe development            |
-| Tailwind CSS      | Utility-first styling            |
-| shadcn/ui         | Component library                |
-| TanStack Query    | Server state management          |
-| Axios             | HTTP client                      |
-| React Hook Form   | Form handling                    |
-| Zod               | Schema validation                |
-| Lucide React      | Icon library                     |
-| Recharts          | Data visualization               |
-
-### Backend
-
-| Technology                        | Purpose                    |
-|-----------------------------------|----------------------------|
-| Python                            | Runtime                    |
-| Django                            | Web framework              |
-| Django REST Framework             | API layer                  |
-| djangorestframework-simplejwt     | JWT authentication (configured) |
-| django-filter                     | Query filtering            |
-| django-cors-headers               | CORS handling              |
-| psycopg                           | PostgreSQL driver          |
-| PostgreSQL                        | Primary database (configured) |
+- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS, TanStack React Query, Lucide React, Axios.
+- **Backend**: Python 3.11, Django, Django REST Framework (DRF), SimpleJWT (JWT Authentication).
+- **Database**: PostgreSQL 16.
+- **Orchestration**: Docker, Docker Compose.
 
 ---
 
-## Project Structure
+## Folder Structure
 
 ```
 warehouse-spare-parts-management-system/
-├── frontend/                 # Next.js 15 application
-│   ├── app/                  # App Router pages and layouts
-│   ├── components/           # UI and layout components
-│   ├── services/             # API service layer
-│   ├── hooks/                # Custom React hooks
-│   ├── lib/                  # Shared utilities (Axios client, cn helper)
-│   ├── store/                # Client state
-│   ├── types/                # TypeScript definitions
-│   ├── utils/                # Helper functions
-│   ├── constants/            # Application constants
-│   ├── styles/               # Global styles
+├── frontend/                 # Next.js Application
+│   ├── app/                  # App Router views & page logic
+│   ├── components/           # UI & layout components
+│   ├── services/             # API client services
+│   ├── lib/                  # Shared utility functions (Axios, CSV exports)
+│   ├── constants/            # Client configuration constants
 │   └── public/               # Static assets
-├── backend/                  # Django application
-│   ├── config/               # Project settings and URLs
-│   ├── authentication/       # Auth module (future sprint)
-│   ├── users/                # User management
-│   ├── dashboard/            # Dashboard module
-│   ├── spare_parts/          # Spare parts catalog
-│   ├── inventory/            # Inventory tracking
-│   ├── warehouses/           # Warehouse management
-│   ├── suppliers/            # Supplier management
-│   ├── purchases/            # Purchase orders
-│   ├── requests/             # Parts requests
-│   ├── issue_return/         # Issue and return workflows
-│   ├── reports/              # Reporting
-│   ├── notifications/        # Notifications
-│   ├── audit_logs/           # Audit trail
-│   └── common/               # Shared backend utilities
-├── docker/                   # Docker Compose configuration
-├── docs/                     # Project documentation
-├── README.md
-├── PROJECT_STATUS.md
-└── .gitignore
-```
-
----
-
-## Prerequisites
-
-- **Node.js** 20+
-- **Python** 3.11+
-- **PostgreSQL** 16+ (optional during initialization; required for production)
-- **Docker** (optional, for containerized database)
-
----
-
-## Initialization
-
-### 1. Clone the repository
-
-```bash
-git clone <repository-url>
-cd warehouse-spare-parts-management-system
-```
-
-### 2. Backend setup
-
-```bash
-cd backend
-
-# Create and activate virtual environment
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# macOS / Linux
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment
-copy .env.example .env   # Windows
-cp .env.example .env     # macOS / Linux
-
-# Verify Django configuration
-python manage.py check
-
-# Run development server
-python manage.py runserver
-```
-
-The backend runs at `http://localhost:8000`.
-
-> **Note:** By default, development uses SQLite so the server starts without PostgreSQL. Set `USE_POSTGRES=True` in `.env` once PostgreSQL is available.
-
-### 3. Frontend setup
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Configure environment
-copy .env.example .env.local   # Windows
-cp .env.example .env.local     # macOS / Linux
-
-# Run development server
-npm run dev
-```
-
-The frontend runs at `http://localhost:3000`.
-
-### 4. PostgreSQL (optional, via Docker)
-
-```bash
-docker compose -f docker/docker-compose.yml up -d
-```
-
-Then set `USE_POSTGRES=True` in `backend/.env`.
-
-### 5. shadcn/ui components
-
-```bash
-cd frontend
-npx shadcn@latest add button
-```
-
----
-
-## API
-
-### Health Check
-
-```
-GET /api/health/
-```
-
-**Response:**
-
-```json
-{
-  "status": "healthy",
-  "project": "Warehouse Spare Parts Management System"
-}
-```
-
-**Example:**
-
-```bash
-curl http://localhost:8000/api/health/
+├── backend/                  # Django DRF Application
+│   ├── config/               # Settings & routing config
+│   ├── users/                # User profile management
+│   ├── spare_parts/          # Catalog management
+│   ├── inventory/            # Transaction ledger
+│   ├── warehouses/           # Multi-facility allocation
+│   ├── suppliers/            # Vendor directory
+│   ├── purchases/            # PO & GRN workflow
+│   ├── issue_return/         # WO & Parts Issuance
+│   ├── reports/              # Aggregated analytics engines
+│   ├── notifications/        # In-app notification dispatcher
+│   ├── audit_logs/           # Admin audit trail
+│   └── common/               # Healthcheck & SystemSettings singleton
+├── docker-compose.yml        # Orchestration configuration
+├── .env.example              # Environment variables template
+└── README.md                 # System manual
 ```
 
 ---
 
 ## Environment Variables
 
-### Backend (`backend/.env`)
+### Backend Settings (`backend/.env`)
+- `DJANGO_SETTINGS_MODULE`: Set to `config.settings.development` or `config.settings.production`
+- `SECRET_KEY`: Django secret key
+- `DEBUG`: `True` / `False`
+- `ALLOWED_HOSTS`: Allowed IP addresses/domains (comma-separated)
+- `USE_POSTGRES`: Set to `True` for database connection
+- `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`: Database connection details
 
-| Variable                         | Description                         | Default                  |
-|----------------------------------|-------------------------------------|--------------------------|
-| `SECRET_KEY`                     | Django secret key                   | —                        |
-| `DEBUG`                          | Debug mode                          | `True`                   |
-| `ALLOWED_HOSTS`                  | Allowed hostnames                   | `localhost,127.0.0.1`    |
-| `USE_POSTGRES`                   | Use PostgreSQL instead of SQLite    | `False`                  |
-| `DB_NAME`                        | PostgreSQL database name            | `warehouse_spare_parts`  |
-| `DB_USER`                        | PostgreSQL user                     | `postgres`               |
-| `DB_PASSWORD`                    | PostgreSQL password                 | `postgres`               |
-| `DB_HOST`                        | PostgreSQL host                     | `localhost`              |
-| `DB_PORT`                        | PostgreSQL port                     | `5432`                   |
-| `CORS_ALLOWED_ORIGINS`           | Frontend origins                    | `http://localhost:3000`  |
-| `CORS_ALLOW_CREDENTIALS`         | Allow credentials in CORS           | `True`                   |
-| `JWT_ACCESS_TOKEN_LIFETIME_MINUTES` | JWT access token lifetime (min)  | `60`                     |
-| `JWT_REFRESH_TOKEN_LIFETIME_DAYS`   | JWT refresh token lifetime (days)| `7`                      |
-| `API_PAGE_SIZE`                  | Default API pagination size         | `20`                     |
-
-### Frontend (`frontend/.env.local`)
-
-| Variable                   | Description     | Default                     |
-|----------------------------|-----------------|-----------------------------|
-| `NEXT_PUBLIC_API_BASE_URL` | Backend API URL | `http://localhost:8000/api` |
+### Frontend Settings (`frontend/.env`)
+- `NEXT_PUBLIC_API_URL`: Gateway base URL (e.g. `http://localhost:8000/api`)
 
 ---
 
-## Backend Configuration
+## Installation Guide
 
-Settings are split across three modules:
+### Backend Scaffolding
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Create virtual environment and activate:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Copy env file and adjust variables:
+   ```bash
+   cp .env.example .env
+   ```
+5. Apply database migrations:
+   ```bash
+   python manage.py migrate
+   ```
+6. Run server:
+   ```bash
+   python manage.py runserver
+   ```
 
-| File              | Purpose                              |
-|-------------------|--------------------------------------|
-| `base.py`         | Shared settings (DRF, JWT, CORS, DB) |
-| `development.py`  | Local development overrides          |
-| `production.py`   | Production security hardening        |
-
-Configured in `base.py`:
-
-- **CORS** — allowed origins from environment
-- **REST_FRAMEWORK** — JWT auth, filtering, pagination, parsers/renderers
-- **SIMPLE_JWT** — token lifetimes from environment
-- **PostgreSQL** — connection via environment variables
-- **Media / Static** — `/media/` and `/static/` paths
+### Frontend Scaffolding
+1. Navigate to frontend:
+   ```bash
+   cd frontend
+   ```
+2. Install npm dependencies:
+   ```bash
+   npm install
+   ```
+3. Copy local environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+4. Start dev server:
+   ```bash
+   npm run dev
+   ```
 
 ---
 
-## Development Status
+## Deployment Guide (Docker)
 
-See [PROJECT_STATUS.md](./PROJECT_STATUS.md) for sprint progress.
+To build and spin up the complete containerized stack (PostgreSQL, Django backend, Next.js frontend):
 
-| Sprint   | Status        |
-|----------|---------------|
-| Sprint 1 | In Progress   |
-| Sprint 2 | Pending       |
-| Sprint 3 | Pending       |
-| Sprint 4 | Pending       |
+1. Make sure Docker and Docker Compose are installed on your server.
+2. Clone the repository and configure environment variables in `.env` (copying `.env.example`).
+3. Run the following command in the root workspace folder:
+   ```bash
+   docker compose up --build -d
+   ```
+4. Perform database migrations automatically inside the container:
+   ```bash
+   docker compose exec backend python manage.py migrate
+   ```
+5. Access the applications:
+   - **Frontend UI**: `http://localhost:3000`
+   - **Backend API Docs**: `http://localhost:8000/api/health/`
 
 ---
 
-## License
+## API Documentation Reference
 
-Proprietary. All rights reserved.
+- **Authentication**:
+  - `POST /api/auth/login/` - Logs user in, returns access/refresh JWT tokens.
+  - `POST /api/auth/logout/` - Invalidates refresh token.
+  - `GET/PUT /api/auth/profile/` - View/Edit current user profile details.
+  - `POST /api/auth/profile/change-password/` - Updates password.
+- **Spare Parts**:
+  - `GET/POST /api/spare-parts/` - List/Create catalog parts.
+- **Warehouses**:
+  - `GET/POST /api/warehouses/` - Facility registry.
+  - `GET/POST /api/warehouses/transfers/` - Inventory stock transfers.
+- **Procurement**:
+  - `GET/POST /api/purchases/` - Purchase Order routing.
+  - `GET/POST /api/purchases/goods-receipts/` - Receives orders into inventory.
+- **Maintenance**:
+  - `GET/POST /api/issue-return/work-orders/` - Work Order scheduling.
+  - `GET/POST /api/issue-return/issue-transactions/` - Spare parts issuance.
+- **Notifications**:
+  - `GET /api/notifications/` - Active notifications feed.
+  - `POST /api/notifications/mark-all-read/` - Bulk read state update.
+- **Audit Logs**:
+  - `GET /api/audit-logs/` - Security audit trail list (restricted to Admin roles).

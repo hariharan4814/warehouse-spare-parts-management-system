@@ -23,7 +23,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Shield,
 } from "lucide-react";
+
+import { useAuth } from "@/components/providers/auth-provider";
 
 type SidebarProps = {
   isCollapsed: boolean;
@@ -45,8 +48,11 @@ export function Sidebar({
   className,
 }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
 
-  const navItems: NavigationItem[] = [
+  const isAdmin = user?.role === "ADMIN";
+
+  const allNavItems: NavigationItem[] = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
     { label: "Spare Parts", href: "/spare-parts", icon: Package },
     { label: "Inventory", href: "/inventory", icon: ClipboardList },
@@ -61,9 +67,17 @@ export function Sidebar({
     { label: "Requests", href: "/requests", icon: ClipboardCopy },
     { label: "Reports", href: "/reports", icon: BarChart3 },
     { label: "Notifications", href: "/notifications", icon: Bell },
-    { label: "Users", href: "/users", icon: UsersIcon },
-    { label: "Settings", href: "/settings", icon: Settings },
   ];
+
+  if (isAdmin) {
+    allNavItems.push(
+      { label: "Security Logs", href: "/audit-logs", icon: Shield },
+      { label: "Users", href: "/users", icon: UsersIcon },
+      { label: "Settings", href: "/settings", icon: Settings }
+    );
+  }
+
+  const navItems = allNavItems;
 
   return (
     <aside

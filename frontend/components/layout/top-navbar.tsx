@@ -1,8 +1,11 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { Menu, Bell, Search, User, LogOut, Settings, ChevronDown, Shield, Sparkles } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider";
+import { notificationsService } from "@/services/notifications";
 
 type TopNavbarProps = {
   onToggleMobileMenu: () => void;
@@ -18,6 +21,15 @@ export function TopNavbar({
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const { data: countData } = useQuery({
+    queryKey: ["unread-notifications-count"],
+    queryFn: () => notificationsService.getUnreadCount(),
+    refetchInterval: 15000, // Poll every 15s for new notifications
+    enabled: !!user,
+  });
+
+  const unreadCount = countData?.unread_count || 0;
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -77,13 +89,18 @@ export function TopNavbar({
       {/* Right items: Notifications and User Dropdown */}
       <div className="flex items-center gap-4">
         {/* Notifications */}
-        <button
+        <Link
+          href="/notifications"
           className="relative flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           aria-label="View notifications"
         >
           <Bell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-1.5 flex h-2 w-2 rounded-full bg-destructive"></span>
-        </button>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
+              {unreadCount}
+            </span>
+          )}
+        </Link>
 
         {/* User profile dropdown container */}
         <div className="relative" ref={dropdownRef}>
@@ -125,21 +142,36 @@ export function TopNavbar({
                 <p className="text-[10px] text-muted-foreground uppercase">{user?.role}</p>
               </div>
 
-              <button
+              <Link
+                href="/profile"
                 onClick={() => setDropdownOpen(false)}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer text-left"
               >
                 <User className="h-4 w-4" />
                 My Profile
-              </button>
+              </Link>
 
-              <button
-                onClick={() => setDropdownOpen(false)}
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer text-left"
-              >
-                <Settings className="h-4 w-4" />
-                System Settings
-              </button>
+              {user?.role === "ADMIN" && (
+                <Link
+                  href="/settings"
+                  onClick={() => setDropdownOpen(false)}
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer text-left"
+                >
+                  <Settings className="h-4 w-4" />
+                  System Settings
+                </Link>
+              )}
+
+              {user?.role === "ADMIN" && (
+                <Link
+                  href="/audit-logs"
+                  onClick={() => setDropdownOpen(false)}
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer text-left"
+                >
+                  <Shield className="h-4 w-4 text-rose-500" />
+                  Security Logs
+                </Link>
+              )}
 
               <div className="my-1 border-t border-border" />
 
