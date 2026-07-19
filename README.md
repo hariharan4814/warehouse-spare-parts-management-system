@@ -1,7 +1,6 @@
 # ⚙️ Warehouse Spare Parts Management System (WSPMS ERP)
 
 [![Production Ready](https://img.shields.io/badge/status-production--ready-success.svg)](#)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#)
 [![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js-black.svg)](https://nextjs.org/)
 [![Django Framework](https://img.shields.io/badge/Django-4.2-green.svg)](https://djangoproject.com/)
 
@@ -327,6 +326,6 @@ npx tsc --noEmit
 
 ---
 
-## 📄 License
+## 📄 Project Purpose
 
-This project was developed for educational, portfolio, and learning purposes. Released under the [MIT License](LICENSE).
+This project was developed for educational, portfolio, and learning purposes.
