@@ -2,7 +2,13 @@ from rest_framework import serializers
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from spare_parts.models import SparePart, StorageLocation
-from inventory.models import StockMovement, StockMovementType, InventoryAdjustment, AdjustmentType
+from inventory.models import (
+    StockMovement,
+    StockMovementType,
+    ReferenceType,
+    InventoryAdjustment,
+    AdjustmentType,
+)
 
 User = get_user_model()
 
@@ -39,8 +45,9 @@ class StockMovementSerializer(serializers.ModelSerializer):
             "quantity",
             "previous_stock",
             "new_stock",
-            "reason",
+            "reference_type",
             "reference_number",
+            "reason",
             "remarks",
             "performed_by",
             "performed_by_username",
@@ -60,30 +67,40 @@ class StockMovementSerializer(serializers.ModelSerializer):
         
         movement_type = validated_data["movement_type"]
         quantity = validated_data["quantity"]
+        reason = validated_data.get("reason", "")
         
         if quantity <= 0:
             raise serializers.ValidationError({"quantity": "Quantity must be greater than zero."})
             
         previous_stock = part.current_stock
         
+        ref_type = validated_data.get("reference_type")
+
         if movement_type == StockMovementType.STOCK_IN:
             new_stock = previous_stock + quantity
+            if not ref_type:
+                ref_type = ReferenceType.PURCHASE
         elif movement_type == StockMovementType.STOCK_OUT:
             if quantity > previous_stock:
                 raise serializers.ValidationError({"quantity": "Stock Out quantity cannot exceed available stock."})
             new_stock = previous_stock - quantity
+            if not ref_type:
+                ref_type = ReferenceType.ISSUE
         elif movement_type == StockMovementType.STOCK_TRANSFER:
             if quantity > previous_stock:
                 raise serializers.ValidationError({"quantity": "Transfer quantity cannot exceed available stock."})
             new_stock = previous_stock
+            if not ref_type:
+                ref_type = ReferenceType.TRANSFER
             
             # If location is provided, update the part's location
             new_loc = validated_data.get("new_storage_location")
             if new_loc:
                 part.storage_location = new_loc
         elif movement_type == StockMovementType.STOCK_ADJUSTMENT:
-            # Handled primarily via adjustments endpoint, but if created directly:
             new_stock = previous_stock + quantity
+            if not ref_type:
+                ref_type = ReferenceType.ADJUSTMENT
         else:
             raise serializers.ValidationError({"movement_type": "Invalid movement type."})
             
@@ -107,7 +124,8 @@ class StockMovementSerializer(serializers.ModelSerializer):
             quantity=quantity,
             previous_stock=previous_stock,
             new_stock=new_stock,
-            reason=validated_data.get("reason", ""),
+            reference_type=ref_type,
+            reason=reason,
             reference_number=validated_data.get("reference_number", ""),
             remarks=validated_data.get("remarks", ""),
             performed_by=user
@@ -161,7 +179,7 @@ class InventoryAdjustmentSerializer(serializers.ModelSerializer):
         
         adjustment_type = validated_data["adjustment_type"]
         quantity = validated_data["quantity"]
-        reason = validated_data["reason"]
+        reason = validated_data.get("reason", "")
         
         if quantity <= 0:
             raise serializers.ValidationError({"quantity": "Quantity must be greater than zero."})
@@ -210,9 +228,11 @@ class InventoryAdjustmentSerializer(serializers.ModelSerializer):
             quantity=quantity,
             previous_stock=previous_stock,
             new_stock=new_stock,
+            reference_type=ReferenceType.ADJUSTMENT,
             reason=f"Adjustment #{adjustment.id}: {reason}",
             reference_number=f"ADJ-{adjustment.id}",
             performed_by=user
         )
         
         return adjustment
+

@@ -8,6 +8,7 @@ export type StockMovement = {
   quantity: number;
   previous_stock: number;
   new_stock: number;
+  reference_type?: "PURCHASE" | "ISSUE" | "RETURN" | "ADJUSTMENT" | "TRANSFER" | null;
   reason: string;
   reference_number: string | null;
   remarks: string | null;

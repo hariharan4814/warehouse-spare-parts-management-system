@@ -10,6 +10,14 @@ class StockMovementType(models.TextChoices):
     STOCK_TRANSFER = "STOCK_TRANSFER", "Stock Transfer"
 
 
+class ReferenceType(models.TextChoices):
+    PURCHASE = "PURCHASE", "Purchase"
+    ISSUE = "ISSUE", "Issue"
+    RETURN = "RETURN", "Return"
+    ADJUSTMENT = "ADJUSTMENT", "Adjustment"
+    TRANSFER = "TRANSFER", "Transfer"
+
+
 class StockMovement(models.Model):
     spare_part = models.ForeignKey(
         SparePart,
@@ -23,6 +31,12 @@ class StockMovement(models.Model):
     quantity = models.PositiveIntegerField()
     previous_stock = models.IntegerField()
     new_stock = models.IntegerField()
+    reference_type = models.CharField(
+        max_length=25,
+        choices=ReferenceType.choices,
+        blank=True,
+        null=True
+    )
     reason = models.TextField()
     reference_number = models.CharField(max_length=100, blank=True, null=True)
     remarks = models.TextField(blank=True, null=True)
@@ -70,3 +84,8 @@ class InventoryAdjustment(models.Model):
 
     def __str__(self):
         return f"{self.adjustment_type} - {self.spare_part.part_name} ({self.quantity})"
+
+
+# Alias to support both model names
+StockAdjustment = InventoryAdjustment
+

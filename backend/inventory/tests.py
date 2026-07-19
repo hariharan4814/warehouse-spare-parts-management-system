@@ -111,6 +111,7 @@ class InventoryAPITests(TestCase):
         self.assertEqual(movement.quantity, 5)
         self.assertEqual(movement.previous_stock, 10)
         self.assertEqual(movement.new_stock, 15)
+        self.assertEqual(movement.reference_type, "PURCHASE")
         self.assertEqual(movement.performed_by, self.keeper)
 
     def test_stock_out_success(self):

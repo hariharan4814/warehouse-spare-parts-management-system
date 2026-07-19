@@ -46,7 +46,7 @@ class StockMovementViewSet(viewsets.ModelViewSet):
     serializer_class = StockMovementSerializer
     permission_classes = [permissions.IsAuthenticated, StockMovementPermission]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["movement_type", "spare_part"]
+    filterset_fields = ["movement_type", "spare_part", "reference_type"]
     search_fields = [
         "spare_part__part_name",
         "spare_part__part_number",

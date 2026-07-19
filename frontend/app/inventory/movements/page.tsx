@@ -40,6 +40,7 @@ function MovementsContent() {
   // Filter and Sorting state
   const [search, setSearch] = useState("");
   const [selectedType, setSelectedType] = useState("");
+  const [selectedRefType, setSelectedRefType] = useState("");
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -49,6 +50,7 @@ function MovementsContent() {
   const [formPartId, setFormPartId] = useState("");
   const [formQuantity, setFormQuantity] = useState("");
   const [formReason, setFormReason] = useState("");
+  const [formRefType, setFormRefType] = useState("");
   const [formRefNum, setFormRefNum] = useState("");
   const [formRemarks, setFormRemarks] = useState("");
   const [formNewLocationId, setFormNewLocationId] = useState("");
@@ -56,11 +58,12 @@ function MovementsContent() {
 
   // Load movements
   const { data, isLoading } = useQuery({
-    queryKey: ["inventory-movements", search, selectedType, page, sortBy, sortOrder],
+    queryKey: ["inventory-movements", search, selectedType, selectedRefType, page, sortBy, sortOrder],
     queryFn: () =>
       inventoryService.getMovements({
         search,
         movement_type: selectedType,
+        reference_type: selectedRefType,
         page,
         ordering: `${sortOrder === "desc" ? "-" : ""}${sortBy}`,
       }),
@@ -82,10 +85,13 @@ function MovementsContent() {
   useEffect(() => {
     if (actionParam === "stock_in") {
       setOpenModal("STOCK_IN");
+      setFormRefType("PURCHASE");
     } else if (actionParam === "stock_out") {
       setOpenModal("STOCK_OUT");
+      setFormRefType("ISSUE");
     } else if (actionParam === "stock_transfer") {
       setOpenModal("STOCK_TRANSFER");
+      setFormRefType("TRANSFER");
     }
   }, [actionParam]);
 
@@ -94,6 +100,7 @@ function MovementsContent() {
     setFormPartId("");
     setFormQuantity("");
     setFormReason("");
+    setFormRefType("");
     setFormRefNum("");
     setFormRemarks("");
     setFormNewLocationId("");
@@ -174,6 +181,7 @@ function MovementsContent() {
       movement_type: openModal,
       quantity: qty,
       reason: formReason,
+      reference_type: formRefType || undefined,
       reference_number: formRefNum || null,
       remarks: formRemarks || null,
     };
@@ -194,6 +202,7 @@ function MovementsContent() {
       "Part Number",
       "Part Name",
       "Movement Type",
+      "Reference Type",
       "Quantity",
       "Previous Stock",
       "New Stock",
@@ -207,6 +216,7 @@ function MovementsContent() {
       tx.spare_part?.part_number || "",
       tx.spare_part?.part_name || "",
       tx.movement_type,
+      tx.reference_type || "",
       tx.quantity,
       tx.previous_stock,
       tx.new_stock,
@@ -286,6 +296,24 @@ function MovementsContent() {
                   <option value="STOCK_ADJUSTMENT">Adjustments</option>
                 </select>
               </div>
+
+              <div className="flex items-center gap-1.5 min-w-[150px]">
+                <select
+                  value={selectedRefType}
+                  onChange={(e) => {
+                    setSelectedRefType(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-hidden"
+                >
+                  <option value="">All Ref Types</option>
+                  <option value="PURCHASE">Purchase</option>
+                  <option value="ISSUE">Issue</option>
+                  <option value="RETURN">Return</option>
+                  <option value="ADJUSTMENT">Adjustment</option>
+                  <option value="TRANSFER">Transfer</option>
+                </select>
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
@@ -334,7 +362,7 @@ function MovementsContent() {
           {/* Movements Data Table */}
           <div className="bg-card rounded-xl border border-border overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left border-collapse min-w-[900px]">
+              <table className="w-full text-sm text-left border-collapse min-w-[950px]">
                 <thead>
                   <tr className="border-b border-border bg-accent/30 text-xs font-bold text-muted-foreground uppercase tracking-wider select-none">
                     <th className="py-3.5 px-4 cursor-pointer hover:text-foreground" onClick={() => handleSort("created_at")}>
@@ -345,18 +373,18 @@ function MovementsContent() {
                     </th>
                     <th className="py-3.5 px-4">Part Number</th>
                     <th className="py-3.5 px-4">Part Name</th>
-                    <th className="py-3.5 px-4">Type</th>
+                    <th className="py-3.5 px-4">Movement Type</th>
                     <th className="py-3.5 px-4 text-center cursor-pointer hover:text-foreground" onClick={() => handleSort("quantity")}>
                       <div className="flex items-center gap-1.5 justify-center">
-                        Qty Moved
+                        Quantity
                         <ArrowUpDown className="h-3 w-3" />
                       </div>
                     </th>
-                    <th className="py-3.5 px-4 text-center">Prev Stock</th>
+                    <th className="py-3.5 px-4 text-center">Previous Stock</th>
                     <th className="py-3.5 px-4 text-center">New Stock</th>
-                    <th className="py-3.5 px-4">Logged By</th>
-                    <th className="py-3.5 px-4">Ref Number</th>
-                    <th className="py-3.5 px-4">Reason / Notes</th>
+                    <th className="py-3.5 px-4">Performed By</th>
+                    <th className="py-3.5 px-4">Ref Type</th>
+                    <th className="py-3.5 px-4">Reference Number</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -371,8 +399,8 @@ function MovementsContent() {
                         <td className="py-4 px-4"><div className="h-4 w-10 bg-accent rounded mx-auto" /></td>
                         <td className="py-4 px-4"><div className="h-4 w-10 bg-accent rounded mx-auto" /></td>
                         <td className="py-4 px-4"><div className="h-4 w-16 bg-accent rounded" /></td>
+                        <td className="py-4 px-4"><div className="h-4 w-16 bg-accent rounded" /></td>
                         <td className="py-4 px-4"><div className="h-4 w-20 bg-accent rounded" /></td>
-                        <td className="py-4 px-4"><div className="h-4 w-40 bg-accent rounded" /></td>
                       </tr>
                     ))
                   ) : !data || data.results.length === 0 ? (
@@ -412,11 +440,10 @@ function MovementsContent() {
                         <td className="py-3.5 px-4 text-center font-medium text-muted-foreground">{tx.previous_stock}</td>
                         <td className="py-3.5 px-4 text-center font-extrabold text-foreground">{tx.new_stock}</td>
                         <td className="py-3.5 px-4 text-xs font-semibold text-muted-foreground">{tx.performed_by_username}</td>
-                        <td className="py-3.5 px-4 text-xs font-semibold text-muted-foreground">{tx.reference_number || "—"}</td>
-                        <td className="py-3.5 px-4 text-xs max-w-[200px] truncate" title={tx.reason}>
-                          {tx.reason}
-                          {tx.remarks && <span className="block text-2xs font-medium text-muted-foreground mt-0.5">Note: {tx.remarks}</span>}
+                        <td className="py-3.5 px-4 text-xs font-semibold text-muted-foreground">
+                          {tx.reference_type || "—"}
                         </td>
+                        <td className="py-3.5 px-4 text-xs font-semibold text-muted-foreground">{tx.reference_number || "—"}</td>
                       </tr>
                     ))
                   )}
@@ -508,6 +535,20 @@ function MovementsContent() {
                       placeholder="e.g. 5"
                       className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-hidden focus:ring-1 focus:ring-ring"
                     />
+                  </FormField>
+
+                  <FormField label="Reference Type">
+                    <select
+                      value={formRefType}
+                      onChange={(e) => setFormRefType(e.target.value)}
+                      className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-hidden focus:ring-1 focus:ring-ring"
+                    >
+                      <option value="PURCHASE">Purchase</option>
+                      <option value="ISSUE">Issue</option>
+                      <option value="RETURN">Return</option>
+                      <option value="TRANSFER">Transfer</option>
+                      <option value="ADJUSTMENT">Adjustment</option>
+                    </select>
                   </FormField>
 
                   {openModal === "STOCK_TRANSFER" && (
