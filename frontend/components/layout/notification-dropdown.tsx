@@ -92,6 +92,32 @@ export function NotificationDropdown() {
     }
   };
 
+  const getNotificationRoute = (type: string) => {
+    switch (type) {
+      case "LOW_STOCK":
+      case "WARNING":
+      case "ERROR":
+        return "/spare-parts";
+      case "WORK_ORDER":
+        return "/work-orders";
+      case "PURCHASE_ORDER":
+        return "/purchase-orders";
+      case "GOODS_RECEIPT":
+        return "/goods-receipts";
+      case "STOCK_TRANSFER":
+        return "/stock-transfers";
+      default:
+        return "/notifications";
+    }
+  };
+
+  const handleNotificationClick = (item: InAppNotification) => {
+    if (!item.is_read) {
+      markReadMutation.mutate(item.id);
+    }
+    setIsOpen(false);
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Bell Trigger Button */}
@@ -148,52 +174,62 @@ export function NotificationDropdown() {
                 <p className="text-2xs text-muted-foreground mt-0.5">You are all caught up with your updates.</p>
               </div>
             ) : (
-              notificationsList.map((item) => (
-                <div
-                  key={item.id}
-                  className={`p-3.5 flex items-start justify-between gap-3 transition-colors ${
-                    item.is_read ? "bg-card hover:bg-accent/40" : "bg-primary/5 hover:bg-primary/10"
-                  }`}
-                >
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="mt-0.5 shrink-0">{getIcon(item.notification_type)}</div>
-                    <div className="space-y-1 flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-bold text-foreground truncate">{item.title}</p>
-                        {!item.is_read && <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />}
+              notificationsList.map((item) => {
+                const targetRoute = getNotificationRoute(item.notification_type);
+
+                return (
+                  <div
+                    key={item.id}
+                    className={`p-3.5 flex items-start justify-between gap-3 transition-colors ${
+                      item.is_read ? "bg-card hover:bg-accent/40" : "bg-primary/5 hover:bg-primary/10"
+                    }`}
+                  >
+                    <Link
+                      href={targetRoute}
+                      onClick={() => handleNotificationClick(item)}
+                      className="flex items-start gap-3 flex-1 min-w-0 group/notif cursor-pointer"
+                    >
+                      <div className="mt-0.5 shrink-0">{getIcon(item.notification_type)}</div>
+                      <div className="space-y-1 flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-bold text-foreground group-hover/notif:text-primary transition-colors truncate">
+                            {item.title}
+                          </p>
+                          {!item.is_read && <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />}
+                        </div>
+                        <p className="text-2xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          {item.message}
+                        </p>
+                        <div className="flex items-center gap-1 text-[10px] text-muted-foreground/80 font-medium pt-0.5">
+                          <Clock className="h-3 w-3" />
+                          <span>{new Date(item.created_at).toLocaleString()}</span>
+                        </div>
                       </div>
-                      <p className="text-2xs text-muted-foreground line-clamp-2 leading-relaxed">
-                        {item.message}
-                      </p>
-                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground/80 font-medium pt-0.5">
-                        <Clock className="h-3 w-3" />
-                        <span>{new Date(item.created_at).toLocaleString()}</span>
-                      </div>
+                    </Link>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      {!item.is_read && (
+                        <button
+                          onClick={() => markReadMutation.mutate(item.id)}
+                          disabled={markReadMutation.isPending}
+                          title="Mark as read"
+                          className="p-1 rounded-md text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => deleteMutation.mutate(item.id)}
+                        disabled={deleteMutation.isPending}
+                        title="Delete notification"
+                        className="p-1 rounded-md text-muted-foreground hover:text-rose-600 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-1 shrink-0">
-                    {!item.is_read && (
-                      <button
-                        onClick={() => markReadMutation.mutate(item.id)}
-                        disabled={markReadMutation.isPending}
-                        title="Mark as read"
-                        className="p-1 rounded-md text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10 transition-colors cursor-pointer"
-                      >
-                        <Check className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => deleteMutation.mutate(item.id)}
-                      disabled={deleteMutation.isPending}
-                      title="Delete notification"
-                      className="p-1 rounded-md text-muted-foreground hover:text-rose-600 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -213,3 +249,4 @@ export function NotificationDropdown() {
     </div>
   );
 }
+

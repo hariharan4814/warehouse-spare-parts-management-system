@@ -65,7 +65,6 @@ export function Sidebar({
     { label: "Suppliers", href: "/suppliers", icon: Truck, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER"] },
     { label: "Purchase Orders", href: "/purchase-orders", icon: FileSpreadsheet, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER"] },
     { label: "Goods Receipts", href: "/goods-receipts", icon: PackageCheck, allowedRoles: ["ADMIN", "STORE_KEEPER", "WAREHOUSE_MANAGER"] },
-    { label: "Requests", href: "/requests", icon: ClipboardCopy, allowedRoles: ["ADMIN", "TECHNICIAN", "STORE_KEEPER", "WAREHOUSE_MANAGER"] },
     { label: "Reports", href: "/reports", icon: BarChart3, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER"] },
     { label: "Notifications", href: "/notifications", icon: Bell },
   ];

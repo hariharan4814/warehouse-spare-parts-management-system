@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "./card";
 import { ActivityItem } from "@/constants/mock-data";
 import { ArrowLeftRight, FileSpreadsheet, Truck, ClipboardList, Clock } from "lucide-react";
@@ -23,6 +24,13 @@ const bgColors = {
   update: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
 };
 
+const routeMap = {
+  issue: "/work-orders",
+  purchase: "/purchase-orders",
+  supplier: "/suppliers",
+  update: "/spare-parts",
+};
+
 export function ActivityCard({ activities, className }: ActivityCardProps) {
   return (
     <Card className={cn("border-border shadow-xs", className)}>
@@ -33,6 +41,8 @@ export function ActivityCard({ activities, className }: ActivityCardProps) {
         <div className="relative border-l border-border pl-6 space-y-6">
           {activities.map((item) => {
             const Icon = iconMap[item.type] || ClipboardList;
+            const targetRoute = routeMap[item.type] || "/spare-parts";
+
             return (
               <div key={item.id} className="relative">
                 {/* Timeline node */}
@@ -48,7 +58,9 @@ export function ActivityCard({ activities, className }: ActivityCardProps) {
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-foreground">
                     <span className="font-bold">{item.user}</span> {item.action}{" "}
-                    <span className="font-bold text-primary">{item.target}</span>
+                    <Link href={targetRoute} className="font-bold text-primary hover:underline">
+                      {item.target}
+                    </Link>
                   </p>
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
@@ -64,3 +76,4 @@ export function ActivityCard({ activities, className }: ActivityCardProps) {
   );
 }
 export default ActivityCard;
+
