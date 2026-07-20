@@ -12,9 +12,29 @@ export type AuditLogEntry = {
   new_value: string | null;
 };
 
+export type PaginatedAuditLogsResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: AuditLogEntry[];
+};
+
 export const auditLogsService = {
-  async getAuditLogs() {
-    const response = await apiClient.get<AuditLogEntry[]>("/audit-logs/");
+  async getAuditLogs(page: number = 1, pageSize: number = 20): Promise<PaginatedAuditLogsResponse> {
+    const response = await apiClient.get<PaginatedAuditLogsResponse | AuditLogEntry[]>("/audit-logs/", {
+      params: { page, page_size: pageSize },
+    });
+
+    if (Array.isArray(response.data)) {
+      return {
+        count: response.data.length,
+        next: null,
+        previous: null,
+        results: response.data,
+      };
+    }
+
     return response.data;
   },
 };
+

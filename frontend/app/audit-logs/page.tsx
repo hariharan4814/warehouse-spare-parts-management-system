@@ -19,15 +19,19 @@ import {
   Terminal,
   Clock,
   User as UserIcon,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export default function AuditLogsPage() {
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
+  const [page, setPage] = useState(1);
+  const pageSize = 15;
 
-  const { data: logs, isLoading } = useQuery({
-    queryKey: ["admin-audit-logs-list"],
-    queryFn: () => auditLogsService.getAuditLogs(),
+  const { data: logsData, isLoading } = useQuery({
+    queryKey: ["admin-audit-logs-list", page, pageSize],
+    queryFn: () => auditLogsService.getAuditLogs(page, pageSize),
     enabled: !!isAdmin,
   });
 
@@ -53,13 +57,15 @@ export default function AuditLogsPage() {
     );
   }
 
-  const items = logs || [];
+  const items: AuditLogEntry[] = logsData?.results || [];
+  const totalCount = logsData?.count || 0;
+  const totalPages = Math.ceil(totalCount / pageSize) || 1;
 
   const filteredItems = items.filter((item) => {
     const matchesSearch =
-      item.username.toLowerCase().includes(search.toLowerCase()) ||
-      item.module.toLowerCase().includes(search.toLowerCase()) ||
-      item.action.toLowerCase().includes(search.toLowerCase());
+      (item.username || "").toLowerCase().includes(search.toLowerCase()) ||
+      (item.module || "").toLowerCase().includes(search.toLowerCase()) ||
+      (item.action || "").toLowerCase().includes(search.toLowerCase());
     const matchesAction = actionFilter ? item.action === actionFilter : true;
     return matchesSearch && matchesAction;
   });
@@ -181,7 +187,7 @@ export default function AuditLogsPage() {
                           <td className="py-3.5 px-4">
                             <div className="flex items-center gap-1.5">
                               <UserIcon className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-extrabold text-foreground">{log.username}</span>
+                              <span className="font-extrabold text-foreground">{log.username || "System"}</span>
                             </div>
                           </td>
                           <td className="py-3.5 px-4">
@@ -209,6 +215,42 @@ export default function AuditLogsPage() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination Controls */}
+              {totalCount > 0 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 border-t border-border bg-accent/10">
+                  <div className="text-2xs font-semibold text-muted-foreground">
+                    Showing <span className="font-bold text-foreground">{(page - 1) * pageSize + 1}</span> to{" "}
+                    <span className="font-bold text-foreground">{Math.min(page * pageSize, totalCount)}</span> of{" "}
+                    <span className="font-bold text-foreground">{totalCount}</span> audit entries
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className="h-7 px-2 text-xs gap-1 cursor-pointer disabled:opacity-40"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                      Prev
+                    </Button>
+                    <span className="text-2xs font-extrabold px-2 text-foreground">
+                      {page} / {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page >= totalPages}
+                      className="h-7 px-2 text-xs gap-1 cursor-pointer disabled:opacity-40"
+                    >
+                      Next
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Right Side: Payload Inspection view */}
@@ -227,7 +269,7 @@ export default function AuditLogsPage() {
                   <div className="space-y-1">
                     <span className="font-bold text-muted-foreground">User:</span>
                     <p className="font-extrabold text-foreground">
-                      {selectedLog.username} ({selectedLog.user_email})
+                      {selectedLog.username || "System"} ({selectedLog.user_email || "N/A"})
                     </p>
                   </div>
                   <div className="space-y-1">
@@ -259,3 +301,4 @@ export default function AuditLogsPage() {
     </ProtectedRoute>
   );
 }
+

@@ -3,17 +3,13 @@ from audit_logs.models import AuditLog
 from audit_logs.serializers import AuditLogSerializer
 
 
-class DenyAll(permissions.BasePermission):
+class IsAdminUserRole(permissions.BasePermission):
     def has_permission(self, request, view):
-        return False
+        return bool(request.user and request.user.is_authenticated and getattr(request.user, "role", "") == "ADMIN")
 
 
 class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AuditLog.objects.select_related("user").order_by("-timestamp")
     serializer_class = AuditLogSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAdminUserRole]
 
-    def get_permissions(self):
-        if self.request.user and self.request.user.role == "ADMIN":
-            return [permissions.IsAuthenticated()]
-        return [DenyAll()]
