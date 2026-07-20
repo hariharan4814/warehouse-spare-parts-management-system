@@ -342,11 +342,11 @@ export default function NewSparePartPage() {
             {/* Pricing Card */}
             <div className="bg-card rounded-xl border border-border p-6 shadow-xs space-y-4">
               <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider pb-2 border-b border-border">
-                Pricing (USD)
+                Pricing (INR / ₹)
               </h3>
               
               <div className="grid grid-cols-2 gap-3">
-                <FormField label="Cost Price ($)" error={errors.cost_price?.message}>
+                <FormField label="Cost Price (₹)" error={errors.cost_price?.message}>
                   <input
                     type="number"
                     step="0.01"
@@ -355,7 +355,7 @@ export default function NewSparePartPage() {
                   />
                 </FormField>
 
-                <FormField label="Selling Price ($ - Optional)" error={errors.selling_price?.message}>
+                <FormField label="Selling Price (₹ - Optional)" error={errors.selling_price?.message}>
                   <input
                     type="number"
                     step="0.01"

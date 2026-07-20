@@ -94,10 +94,11 @@ export default function CreatePurchaseOrderPage() {
 
   // Format Currency
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
-    }).format(val);
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(val).replace("INR", "₹").trim();
   };
 
   // Mutation for creating PO

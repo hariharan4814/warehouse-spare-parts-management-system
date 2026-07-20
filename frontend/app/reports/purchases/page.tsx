@@ -46,10 +46,11 @@ export default function PurchaseReportPage() {
   const totalSpend = data?.total_spend || 0;
 
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
-    }).format(val || 0);
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(val || 0).replace("INR", "₹").trim();
   };
 
   const handleExport = () => {
@@ -60,7 +61,7 @@ export default function PurchaseReportPage() {
       "Order Date": i.order_date,
       "Expected Delivery": i.expected_delivery_date,
       Status: i.status,
-      "Total Amount ($)": i.total_amount,
+      "Total Amount (₹)": i.total_amount,
       "Created By": i.created_by,
     }));
     exportToCSV(exportData, "Purchase_Orders_Report");

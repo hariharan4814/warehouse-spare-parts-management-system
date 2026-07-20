@@ -24,7 +24,7 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { sparePartsService } from "@/services/spare-parts";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 type TabType = "overview" | "location" | "history";
 
@@ -296,7 +296,7 @@ export default function SparePartDetailPage() {
                       </div>
                       <div>
                         <span className="text-[10px] text-muted-foreground uppercase font-bold block">Cost Price</span>
-                        <p className="text-sm font-bold text-foreground">${part.cost_price}</p>
+                        <p className="text-sm font-bold text-foreground">{formatCurrency(part.cost_price)}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -306,7 +306,7 @@ export default function SparePartDetailPage() {
                       <div>
                         <span className="text-[10px] text-muted-foreground uppercase font-bold block">Selling Price</span>
                         <p className="text-sm font-bold text-foreground">
-                          {part.selling_price ? `$${part.selling_price}` : "Not For Sale"}
+                          {part.selling_price ? formatCurrency(part.selling_price) : "Not For Sale"}
                         </p>
                       </div>
                     </div>

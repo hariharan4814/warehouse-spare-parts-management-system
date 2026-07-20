@@ -33,16 +33,16 @@ export default function ReportsDashboardPage() {
   });
 
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
+      currency: "INR",
       maximumFractionDigits: 0,
-    }).format(val || 0);
+    }).format(val || 0).replace("INR", "₹").trim();
   };
 
   if (isLoading) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ADMIN", "WAREHOUSE_MANAGER"]}>
         <DashboardLayout>
           <PageContainer title="Reports & Business Intelligence" subtitle="Loading analytics...">
             <div className="h-96 w-full bg-card rounded-xl animate-pulse" />
@@ -63,7 +63,7 @@ export default function ReportsDashboardPage() {
   }));
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["ADMIN", "WAREHOUSE_MANAGER"]}>
       <DashboardLayout>
         <PageContainer
           title="Reports & Business Intelligence"
@@ -191,7 +191,7 @@ export default function ReportsDashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <BarChartCard
               title="Inventory Valuation by Warehouse"
-              subtitle="Total asset value ($) stored across regional distribution centers"
+              subtitle="Total asset value (₹) stored across regional distribution centers"
               items={warehouseChartItems}
               formatValue={formatCurrency}
               barColor="bg-primary"

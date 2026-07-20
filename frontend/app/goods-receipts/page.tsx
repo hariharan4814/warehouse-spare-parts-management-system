@@ -34,7 +34,7 @@ export default function GoodsReceiptsPage() {
   });
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["ADMIN", "STORE_KEEPER", "WAREHOUSE_MANAGER"]}>
       <DashboardLayout>
         <PageContainer
           title="Goods Receipts Audit Log"

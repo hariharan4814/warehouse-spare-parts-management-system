@@ -43,6 +43,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
     def validate(self, attrs):
+        username = attrs.get("username")
+        if username:
+            user_obj = User.objects.filter(username__iexact=username).first()
+            if user_obj:
+                attrs["username"] = user_obj.username
         data = super().validate(attrs)
         # Add profile info to the API response payload
         data["user"] = UserSerializer(self.user).data

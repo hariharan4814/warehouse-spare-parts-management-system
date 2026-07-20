@@ -79,7 +79,7 @@ export default function AuditLogsPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["ADMIN"]}>
       <DashboardLayout>
         <PageContainer
           title="Security Audit Logging Ledger"

@@ -20,8 +20,13 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
         // Redirect to login page and keep track of original path
         router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
       } else if (allowedRoles && !allowedRoles.includes(user.role)) {
-        // Redirect to unauthorized page or homepage
-        router.push("/");
+        if (user.role === "TECHNICIAN") {
+          router.push("/work-orders");
+        } else if (user.role === "STORE_KEEPER") {
+          router.push("/inventory");
+        } else {
+          router.push("/");
+        }
       }
     }
   }, [user, isLoading, router, pathname, allowedRoles]);

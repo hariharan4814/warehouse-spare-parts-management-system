@@ -34,7 +34,7 @@ export default function SettingsPage() {
 
   const [companyName, setCompanyName] = useState("");
   const [warehouseAddress, setWarehouseAddress] = useState("");
-  const [defaultCurrency, setDefaultCurrency] = useState("USD");
+  const [defaultCurrency, setDefaultCurrency] = useState("INR");
   const [lowStockThreshold, setLowStockThreshold] = useState(10);
   const [systemTimeZone, setSystemTimeZone] = useState("UTC");
   const [companyLogoFile, setCompanyLogoFile] = useState<File | null>(null);
@@ -45,7 +45,7 @@ export default function SettingsPage() {
     if (settings) {
       setCompanyName(settings.company_name || "");
       setWarehouseAddress(settings.warehouse_address || "");
-      setDefaultCurrency(settings.default_currency || "USD");
+      setDefaultCurrency(settings.default_currency || "INR");
       setLowStockThreshold(settings.low_stock_threshold || 10);
       setSystemTimeZone(settings.system_time_zone || "UTC");
     }
@@ -78,7 +78,7 @@ export default function SettingsPage() {
 
   if (!isAdmin) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ADMIN"]}>
         <DashboardLayout>
           <PageContainer title="System Settings" subtitle="Access restriction.">
             <div className="flex flex-col items-center justify-center py-20 text-center bg-card border border-border rounded-xl shadow-xs">
@@ -96,7 +96,7 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ADMIN"]}>
         <DashboardLayout>
           <PageContainer title="System Settings" subtitle="Loading settings data...">
             <div className="h-96 w-full bg-card rounded-xl animate-pulse" />
@@ -107,7 +107,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["ADMIN"]}>
       <DashboardLayout>
         <PageContainer
           title="Global System Configuration"

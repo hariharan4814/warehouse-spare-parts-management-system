@@ -2,10 +2,9 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { Menu, Bell, Search, User, LogOut, Settings, ChevronDown, Shield, Sparkles } from "lucide-react";
+import { Menu, Search, User, LogOut, Settings, ChevronDown, Shield, Sparkles } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider";
-import { notificationsService } from "@/services/notifications";
+import { NotificationDropdown } from "@/components/layout/notification-dropdown";
 
 type TopNavbarProps = {
   onToggleMobileMenu: () => void;
@@ -21,15 +20,6 @@ export function TopNavbar({
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const { data: countData } = useQuery({
-    queryKey: ["unread-notifications-count"],
-    queryFn: () => notificationsService.getUnreadCount(),
-    refetchInterval: 15000, // Poll every 15s for new notifications
-    enabled: !!user,
-  });
-
-  const unreadCount = countData?.unread_count || 0;
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -88,19 +78,8 @@ export function TopNavbar({
 
       {/* Right items: Notifications and User Dropdown */}
       <div className="flex items-center gap-4">
-        {/* Notifications */}
-        <Link
-          href="/notifications"
-          className="relative flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-          aria-label="View notifications"
-        >
-          <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
-              {unreadCount}
-            </span>
-          )}
-        </Link>
+        {/* Notifications Dropdown */}
+        <NotificationDropdown />
 
         {/* User profile dropdown container */}
         <div className="relative" ref={dropdownRef}>

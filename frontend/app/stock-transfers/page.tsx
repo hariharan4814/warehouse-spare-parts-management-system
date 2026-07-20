@@ -74,7 +74,7 @@ export default function StockTransfersPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["ADMIN", "WAREHOUSE_MANAGER", "STORE_KEEPER"]}>
       <DashboardLayout>
         <PageContainer
           title="Stock Transfers Management"

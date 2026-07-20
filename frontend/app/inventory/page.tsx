@@ -40,10 +40,11 @@ export default function InventoryDashboard() {
   // Format currency
   const formatCurrency = (val: string | number) => {
     const num = typeof val === "string" ? parseFloat(val) : val;
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
-    }).format(num || 0);
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(num || 0).replace("INR", "₹").trim();
   };
 
   // Format date
@@ -71,7 +72,7 @@ export default function InventoryDashboard() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["ADMIN", "WAREHOUSE_MANAGER", "STORE_KEEPER"]}>
       <DashboardLayout>
         <PageContainer
           title="Inventory Management"

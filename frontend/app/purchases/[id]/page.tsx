@@ -101,10 +101,11 @@ export default function PurchaseOrderDetailPage() {
   // Formatters
   const formatCurrency = (val: string | number) => {
     const num = typeof val === "string" ? parseFloat(val) : val;
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
-    }).format(num || 0);
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(num || 0).replace("INR", "₹").trim();
   };
 
   const formatDate = (dateStr?: string | null) => {

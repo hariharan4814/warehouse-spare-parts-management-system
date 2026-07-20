@@ -39,10 +39,11 @@ export default function WarehouseReportPage() {
   const items = data?.results || [];
 
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
-    }).format(val || 0);
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(val || 0).replace("INR", "₹").trim();
   };
 
   const handleExport = () => {
@@ -53,7 +54,7 @@ export default function WarehouseReportPage() {
       Status: i.status,
       "Total Items": i.total_items,
       "Total Units": i.total_units,
-      "Asset Valuation ($)": i.total_value,
+      "Asset Valuation (₹)": i.total_value,
       "Transfers Sent": i.transfers_sent,
       "Transfers Received": i.transfers_received,
     }));

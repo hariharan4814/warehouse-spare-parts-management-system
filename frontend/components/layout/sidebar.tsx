@@ -39,6 +39,7 @@ type NavigationItem = {
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  allowedRoles?: Array<"ADMIN" | "WAREHOUSE_MANAGER" | "STORE_KEEPER" | "TECHNICIAN">;
 };
 
 export function Sidebar({
@@ -49,35 +50,39 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
-
-  const isAdmin = user?.role === "ADMIN";
+  const role = user?.role || "TECHNICIAN";
+  const isAdmin = role === "ADMIN";
 
   const allNavItems: NavigationItem[] = [
-    { label: "Dashboard", href: "/", icon: LayoutDashboard },
-    { label: "Spare Parts", href: "/spare-parts", icon: Package },
-    { label: "Inventory", href: "/inventory", icon: ClipboardList },
-    { label: "Warehouses", href: "/warehouses", icon: Warehouse },
-    { label: "Warehouse Inventory", href: "/warehouse-inventory", icon: ClipboardList },
-    { label: "Stock Transfers", href: "/stock-transfers", icon: ArrowLeftRight },
-    { label: "Work Orders", href: "/work-orders", icon: Wrench },
-    { label: "Issue Transactions", href: "/issue-transactions", icon: PackageCheck },
-    { label: "Suppliers", href: "/suppliers", icon: Truck },
-    { label: "Purchase Orders", href: "/purchase-orders", icon: FileSpreadsheet },
-    { label: "Goods Receipts", href: "/goods-receipts", icon: PackageCheck },
-    { label: "Requests", href: "/requests", icon: ClipboardCopy },
-    { label: "Reports", href: "/reports", icon: BarChart3 },
+    { label: "Dashboard", href: "/", icon: LayoutDashboard, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER"] },
+    { label: "Spare Parts", href: "/spare-parts", icon: Package, allowedRoles: ["ADMIN", "STORE_KEEPER", "WAREHOUSE_MANAGER"] },
+    { label: "Inventory", href: "/inventory", icon: ClipboardList, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER", "STORE_KEEPER"] },
+    { label: "Warehouses", href: "/warehouses", icon: Warehouse, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER"] },
+    { label: "Warehouse Inventory", href: "/warehouse-inventory", icon: ClipboardList, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER", "STORE_KEEPER"] },
+    { label: "Stock Transfers", href: "/stock-transfers", icon: ArrowLeftRight, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER", "STORE_KEEPER"] },
+    { label: "Work Orders", href: "/work-orders", icon: Wrench, allowedRoles: ["ADMIN", "TECHNICIAN", "WAREHOUSE_MANAGER", "STORE_KEEPER"] },
+    { label: "Issue Transactions", href: "/issue-transactions", icon: PackageCheck, allowedRoles: ["ADMIN", "STORE_KEEPER", "WAREHOUSE_MANAGER"] },
+    { label: "Suppliers", href: "/suppliers", icon: Truck, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER"] },
+    { label: "Purchase Orders", href: "/purchase-orders", icon: FileSpreadsheet, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER"] },
+    { label: "Goods Receipts", href: "/goods-receipts", icon: PackageCheck, allowedRoles: ["ADMIN", "STORE_KEEPER", "WAREHOUSE_MANAGER"] },
+    { label: "Requests", href: "/requests", icon: ClipboardCopy, allowedRoles: ["ADMIN", "TECHNICIAN", "STORE_KEEPER", "WAREHOUSE_MANAGER"] },
+    { label: "Reports", href: "/reports", icon: BarChart3, allowedRoles: ["ADMIN", "WAREHOUSE_MANAGER"] },
     { label: "Notifications", href: "/notifications", icon: Bell },
   ];
 
   if (isAdmin) {
     allNavItems.push(
-      { label: "Security Logs", href: "/audit-logs", icon: Shield },
-      { label: "Users", href: "/users", icon: UsersIcon },
-      { label: "Settings", href: "/settings", icon: Settings }
+      { label: "Security Logs", href: "/audit-logs", icon: Shield, allowedRoles: ["ADMIN"] },
+      { label: "Users", href: "/users", icon: UsersIcon, allowedRoles: ["ADMIN"] },
+      { label: "Settings", href: "/settings", icon: Settings, allowedRoles: ["ADMIN"] }
     );
   }
 
-  const navItems = allNavItems;
+  const navItems = allNavItems.filter((item) => {
+    if (isAdmin) return true;
+    if (!item.allowedRoles) return true;
+    return item.allowedRoles.includes(role as any);
+  });
 
   return (
     <aside

@@ -164,7 +164,7 @@ export default function WarehousesPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["ADMIN", "WAREHOUSE_MANAGER"]}>
       <DashboardLayout>
         <PageContainer
           title="Warehouse Directory"

@@ -35,7 +35,7 @@ export default function IssueTransactionsPage() {
   });
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["ADMIN", "STORE_KEEPER", "WAREHOUSE_MANAGER"]}>
       <DashboardLayout>
         <PageContainer
           title="Parts Issuance Audit Log"

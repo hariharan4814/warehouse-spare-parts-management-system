@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider";
+import { ProtectedRoute } from "@/components/providers/protected-route";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { PageContainer } from "@/components/ui/page-container";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
@@ -163,8 +164,9 @@ export default function SparePartsListPage() {
   };
 
   return (
-    <DashboardLayout>
-      <PageContainer
+    <ProtectedRoute allowedRoles={["ADMIN", "STORE_KEEPER", "WAREHOUSE_MANAGER"]}>
+      <DashboardLayout>
+        <PageContainer
         title="Spare Parts Inventory Catalog"
         subtitle="Manage, edit, search, and track spare part assets across multiple regions."
       >
@@ -597,5 +599,6 @@ export default function SparePartsListPage() {
         )}
       </PageContainer>
     </DashboardLayout>
+  </ProtectedRoute>
   );
 }

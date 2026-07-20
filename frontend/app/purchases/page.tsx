@@ -58,10 +58,11 @@ export default function PurchaseOrdersPage() {
   // Format currency
   const formatCurrency = (val: string | number) => {
     const num = typeof val === "string" ? parseFloat(val) : val;
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
-    }).format(num || 0);
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(num || 0).replace("INR", "₹").trim();
   };
 
   // Status Badge Component
@@ -85,7 +86,7 @@ export default function PurchaseOrdersPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["ADMIN", "WAREHOUSE_MANAGER"]}>
       <DashboardLayout>
         <PageContainer
           title="Purchase Order Management"

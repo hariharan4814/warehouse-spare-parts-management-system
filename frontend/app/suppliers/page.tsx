@@ -190,7 +190,7 @@ export default function SuppliersPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["ADMIN", "WAREHOUSE_MANAGER"]}>
       <DashboardLayout>
         <PageContainer
           title="Supplier Management"

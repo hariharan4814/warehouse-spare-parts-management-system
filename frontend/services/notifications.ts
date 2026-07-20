@@ -9,9 +9,28 @@ export type InAppNotification = {
   created_at: string;
 };
 
+export type PaginatedNotificationsResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: InAppNotification[];
+};
+
 export const notificationsService = {
-  async getNotifications() {
-    const response = await apiClient.get<InAppNotification[]>("/notifications/");
+  async getNotifications(page: number = 1, pageSize: number = 20): Promise<PaginatedNotificationsResponse> {
+    const response = await apiClient.get<PaginatedNotificationsResponse | InAppNotification[]>("/notifications/", {
+      params: { page, page_size: pageSize },
+    });
+
+    if (Array.isArray(response.data)) {
+      return {
+        count: response.data.length,
+        next: null,
+        previous: null,
+        results: response.data,
+      };
+    }
+
     return response.data;
   },
 
@@ -25,8 +44,14 @@ export const notificationsService = {
     return response.data;
   },
 
+  async deleteNotification(id: number) {
+    const response = await apiClient.delete(`/notifications/${id}/`);
+    return response.data;
+  },
+
   async getUnreadCount() {
     const response = await apiClient.get<{ unread_count: number }>("/notifications/unread-count/");
     return response.data;
   },
 };
+

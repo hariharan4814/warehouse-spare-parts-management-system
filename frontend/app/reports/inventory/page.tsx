@@ -46,10 +46,11 @@ export default function InventoryReportPage() {
   const totalValuation = items.reduce((sum, item) => sum + item.valuation, 0);
 
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
-    }).format(val || 0);
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(val || 0).replace("INR", "₹").trim();
   };
 
   const handleExport = () => {
@@ -60,8 +61,8 @@ export default function InventoryReportPage() {
       "Current Stock": i.current_stock,
       "Min Stock": i.minimum_stock,
       "Max Stock": i.maximum_stock,
-      "Unit Cost ($)": i.cost_price,
-      "Total Valuation ($)": i.valuation,
+      "Unit Cost (₹)": i.cost_price,
+      "Total Valuation (₹)": i.valuation,
       Status: i.status,
     }));
     exportToCSV(exportData, "Inventory_Valuation_Report");
